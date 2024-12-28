@@ -30,6 +30,7 @@ struct Test tests[] = {
 		{"priority2", "Tests the priority of the program (Normal and Lower)", tst_priority2},
 		{"mlfq_sc4","Scenario#4: MLFQ",tst_sc_MLFQ },
 		{"bsd_nice", "BSD Scheduler: check order of running multiple instances of same program with different nice values", tst_bsd_nice},
+		{"priorityRR", "Priority RR Scheduler: check order of running multiple instances of same program with different priority values", tst_priorityRR},
 
 		//2022
 		{"str2lower", "Test str2lower function", tst_str2lower},
@@ -184,6 +185,29 @@ int tst_bsd_nice(int number_of_arguments, char **arguments)
 	return 0;
 }
 
+/*2024*/
+int tst_priorityRR(int number_of_arguments, char **arguments)
+{
+	if (number_of_arguments != 2)
+	{
+		cprintf("Invalid number of arguments! USAGE: tst priorityRR <testnumber>\n");
+		return 0;
+	}
+	int testNumber = strtol(arguments[1], NULL, 10);
+	switch (testNumber)
+	{
+	case 0:
+		test_priorityRR_0();
+		break;
+	case 1:
+		test_priorityRR_1();
+		break;
+	case 2:
+		test_priorityRR_2();
+		break;
+	}
+	return 0;
+}
 int tst_str2lower(int number_of_arguments, char **arguments)
 {
 	if (number_of_arguments != 1)
@@ -471,8 +495,6 @@ int tst_kheap(int number_of_arguments, char **arguments)
 				test_krealloc_FF2();
 			else if (testNum==3)
 				test_krealloc_FF3();
-			else if (testNum==4)
-				test_krealloc();
 		}
 		if (isKHeapPlacementStrategyNEXTFIT())
 		{

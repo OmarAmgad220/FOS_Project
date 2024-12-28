@@ -263,10 +263,11 @@ void run_command_prompt()
 {
 	if (autograde)
 	{
-		char cmd1_2[BUFLEN] = "tst bsd_nice 0";
-		char cmd2_2[BUFLEN] = "tst bsd_nice 1";
-		char cmd3_2[BUFLEN] = "tst bsd_nice 2";
-		//execute_command(cmd3_2);
+		char cmdU1_2[BUFLEN] = "tst priorityRR 0";	//
+		char cmdU2_2[BUFLEN] = "tst priorityRR 1";	//
+		char cmdU3_2[BUFLEN] = "tst priorityRR 2";	//
+
+//		execute_command(cmdU3_2);
 		autograde = 0;
 	}
 	/*2024*/
@@ -453,65 +454,16 @@ int execute_command(char *command_string)
 }
 
 
-int process_command(int number_of_arguments, char** arguments) {
+int process_command(int number_of_arguments, char** arguments)
+{
 	//TODO: [PROJECT'24.MS1 - #01] [1] PLAY WITH CODE! - process_command
-	bool Finished= 0;
-	int foundCommands_size = LIST_SIZE(&foundCommands);
-	struct Command_LIST matched_cmds;
 
-	LIST_INIT(&matched_cmds);
-
-	while(foundCommands_size!=0)
+	for (int i = 0; i < NUM_OF_COMMANDS; i++)
 	{
-		struct Command *element=  LIST_FIRST(&foundCommands);
-		LIST_REMOVE(&(foundCommands), element);
-		foundCommands_size--;
-	}
-	for (int i = 0; i < NUM_OF_COMMANDS; i++) {
-		if ((strcmp(arguments[0], commands[i].name) == 0) && (number_of_arguments - 1 == commands[i].num_of_args || (commands[i].num_of_args == -1 && number_of_arguments-1>=1)))
+		if (strcmp(arguments[0], commands[i].name) == 0)
 		{
 			return i;
 		}
-		else if (!(strlen(arguments[0]) != strlen(commands[i].name))&& strcmp(arguments[0], commands[i].name) == 0)
-		{
-			LIST_INSERT_HEAD(&foundCommands, &commands[i]);
-			return CMD_INV_NUM_ARGS;
-
-		} else if (strchr(commands[i].name, arguments[0][0]) != NULL) {
-			int size_of_first_args = strlen(arguments[0]);
-			bool IS_Found = 1;
-
-			for (int j = 1; j < size_of_first_args; j++)
-					{
-					char *ptr_to_prev= strchr(commands[i].name, arguments[0][j-1]);
-					int indx_prev= (int)(ptr_to_prev - commands[i].name);
-					char *ptr= strchr(commands[i].name, arguments[0][j]);
-					int indx=(int)(ptr - commands[i].name);
-					if (strchr(commands[i].name, arguments[0][j])==NULL || indx_prev >= indx) {
-						IS_Found = 0;
-						break;
-					}
-
-			}
-
-			if (IS_Found == 1)
-			{
-				LIST_INSERT_HEAD(&matched_cmds, &commands[i]);
-				Finished=1;
-			}
-
-		}
 	}
-	if(Finished==1)
-	{
-		Finished=0;
-		foundCommands = matched_cmds;
-		return CMD_MATCHED;
-	}
-	else
-	{
-
-		return CMD_INVALID;
-	}
-
+	return CMD_INVALID;
 }
