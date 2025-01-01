@@ -27,7 +27,7 @@ _main(void)
 	int sem2val = semaphore_count(depend1);
 	if (sem2val == 0 && sem1val == 1)
 		//cprintf("Congratulations!! Test of Semaphores [1] completed successfully!!\n\n\n");
-		atomic_cprintf("%~\nCongratulations!!... test is completed.\n");
+		atomic_cprintf("%~\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 	else
 		atomic_cprintf("Error: wrong semaphore value... please review your semaphore code again! Expected = %d, %d, Actual = %d, %d", 1, 0, sem1val, sem2val);
 

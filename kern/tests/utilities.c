@@ -374,7 +374,28 @@ void sys_utilities(char* utilityName, int value)
 			//cprintf("\nINTERRUPT WILL BE ENABLED\n");
 		}
 	}
-
+	else if (strncmp(utilityName, "__getProcState@", strlen("__getProcState@")) == 0)
+	{
+		int number_of_tokens;
+		//allocate array of char * of size MAX_ARGUMENTS = 16 found in string.h
+		char *tokens[MAX_ARGUMENTS];
+		strsplit(utilityName, "@", tokens, &number_of_tokens) ;
+		int envID = strtol(tokens[1], NULL, 10);
+		struct Env* env = NULL ;
+		int ret = envid2env(envID, &env, 0);
+		uint32* procState = (uint32*) value ;
+		if (ret == E_BAD_ENV)
+		{
+			//cprintf("\n\n<<<<<<<<<<< BAD ENV >>>>>>>>>>>\n\n");
+			*procState = E_BAD_ENV;
+			return;
+		}
+		else
+		{
+			assert(env->env_id == envID) ;
+			*procState = env->env_status;
+		}
+	}
 	if ((int)value < 0)
 	{
 		if (strcmp(utilityName, "__ReplStrat__") == 0)

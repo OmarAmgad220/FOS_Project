@@ -89,7 +89,7 @@ void _main(void)
 		{
 			free(env_Fibs) ;
 			//cprintf("Congratulations... MULTIPLE APPS scenario finished\n");
-			atomic_cprintf("%~\nCongratulations!!... test is completed.\n");
+			atomic_cprintf("%~\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 		}
 		else
 		{

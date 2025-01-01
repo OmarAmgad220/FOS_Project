@@ -31,7 +31,7 @@ void _main(void)
 	}//consider tables of PF, disk pages
 
 	//cprintf("Congratulations: stack pages created, modified and read is completed successfully\n\n");
-	atomic_cprintf("%~\nCongratulations!!... test is completed.\n");
+	atomic_cprintf("%~\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 
 
 	return;

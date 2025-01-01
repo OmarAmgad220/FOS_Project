@@ -170,7 +170,7 @@ void _main(void)
 			//cprintf("%~Congratulations... BSD SCENARIO 1 CHECK#2 is passed successfully\n");
 			//cprintf("\nPRIORITY_RR SCENARIO 1 CHECK is finished. Eval = %d\n\n", eval);
 			cprintf("%~\nTOTAL NUMBER OF DISK ACCESS FOR ALL PROGRAMS = %d\n", totalNumOfDiskAccess);
-			cprintf("%~\neval = %d\n", eval);
+			cprintf("%~\n[AUTO_GR@DING_PARTIAL]%d\n", eval);
 			cprintf("%~\n###############################################################\n");
 		}
 		sys_unlock_cons();

@@ -79,7 +79,7 @@ void _main(void)
 			(env_NORMAL_1->nNewPageAdded == env_NORMAL_10->nNewPageAdded) && (env_NORMAL_10->nNewPageAdded == env_MODIFIED_10->nNewPageAdded))
 		{
 			//cprintf("%~\n\nCongratulations... Nth Clock: Normal vs Modified scenario finished\n\n");
-			atomic_cprintf("%~\nCongratulations!!... test is completed.\n");
+			atomic_cprintf("%~\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 		}
 		else
 		{

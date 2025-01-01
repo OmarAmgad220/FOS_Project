@@ -43,7 +43,7 @@ _main(void)
 	env_sleep(10000);
 	if (sem2val == 0 && sem1val == shopCapacity)
 		//cprintf("\nCongratulations!! Test of Semaphores [2] completed successfully!!\n\n\n");
-		atomic_cprintf("%~\nCongratulations!!... test is completed.\n");
+		atomic_cprintf("%~\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 	else
 		atomic_cprintf("\nError: wrong semaphore value... please review your semaphore code again...\n");
 

@@ -291,7 +291,7 @@ _main(void)
 		assert(semaphore_count(clerkTerminated) ==  0);
 
 		//atomic_cprintf("%~\nCongratulations... Airplane Reservation App is Finished Successfully\n\n");
-		atomic_cprintf("%~\nCongratulations!!... test is completed.\n");
+		atomic_cprintf("%~\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 	}
 
 }

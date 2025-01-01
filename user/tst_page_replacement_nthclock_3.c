@@ -134,7 +134,7 @@ void _main(void)
 	}
 
 	//cprintf("Congratulations!! test PAGE replacement [Nth Clock after free user mem] is completed successfully\n");
-	atomic_cprintf("%~\nCongratulations!!... test is completed.\n");
+	atomic_cprintf("%~\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 
 	return;
 }

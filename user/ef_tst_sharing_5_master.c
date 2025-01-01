@@ -1,19 +1,9 @@
 // Test the free of shared variables
 #include <inc/lib.h>
 
-extern volatile bool printStats;
 void
 _main(void)
 {
-	printStats = 0;
-	/*********************** NOTE ****************************
-	 * WE COMPARE THE DIFF IN FREE FRAMES BY "AT LEAST" RULE
-	 * INSTEAD OF "EQUAL" RULE SINCE IT'S POSSIBLE THAT SOME
-	 * PAGES ARE ALLOCATED IN KERNEL DYNAMIC ALLOCATOR DUE
-	 * TO sbrk()
-	 *********************************************************/
-
-	/*=================================================*/
 	//Initial test to ensure it works on "PLACEMENT" not "REPLACEMENT"
 #if USE_KHEAP
 	{
@@ -35,16 +25,16 @@ _main(void)
 
 	int envID = sys_getenvid();
 
+	int32 envIdSlave1, envIdSlave2, envIdSlaveB1, envIdSlaveB2;
+
 	cprintf("STEP A: checking free of shared object using 2 environments... \n");
 	{
 		uint32 *x;
-		int32 envIdSlave1 = sys_create_env("tshr5slave", (myEnv->page_WS_max_size),(myEnv->SecondListSize), (myEnv->percentage_of_WS_pages_to_be_removed));
-		int32 envIdSlave2 = sys_create_env("tshr5slave", (myEnv->page_WS_max_size),(myEnv->SecondListSize), (myEnv->percentage_of_WS_pages_to_be_removed));
+		envIdSlave1 = sys_create_env("ef_tshr5slave", (myEnv->page_WS_max_size),(myEnv->SecondListSize), 50);
+		envIdSlave2 = sys_create_env("ef_tshr5slave", (myEnv->page_WS_max_size),(myEnv->SecondListSize), 50);
 
 		int freeFrames = sys_calculate_free_frames() ;
-
 		x = smalloc("x", PAGE_SIZE, 1);
-
 		cprintf("Master env created x (1 page) \n");
 		if (x != (uint32*)pagealloc_start) panic("Returned address is not correct. check the setting of it and/or the updating of the shared_mem_free_address");
 		expected = 1+1 ; /*1page +1table*/
@@ -65,21 +55,19 @@ _main(void)
 		while (gettst()!=2) ;// panic("test failed");
 
 		freeFrames = sys_calculate_free_frames() ;
-
 		sfree(x);
-
 		cprintf("Master env removed x (1 page) \n");
 		int diff2 = (sys_calculate_free_frames() - freeFrames);
 		expected = 1+1; /*1page+1table*/
 		if (diff2 != expected) panic("Wrong free (diff=%d, expected=%d): revise your freeSharedObject logic\n", diff2, expected);
 	}
-	cprintf("Step A completed successfully!!\n\n\n");
+	cprintf("Step A is finished!!\n\n\n");
 
 	cprintf("STEP B: checking free of 2 shared objects ... \n");
 	{
 		uint32 *x, *z ;
-		int32 envIdSlaveB1 = sys_create_env("tshr5slaveB1", (myEnv->page_WS_max_size),(myEnv->SecondListSize), (myEnv->percentage_of_WS_pages_to_be_removed));
-		int32 envIdSlaveB2 = sys_create_env("tshr5slaveB2", (myEnv->page_WS_max_size),(myEnv->SecondListSize), (myEnv->percentage_of_WS_pages_to_be_removed));
+		envIdSlaveB1 = sys_create_env("ef_tshr5slaveB1", (myEnv->page_WS_max_size),(myEnv->SecondListSize), 50);
+		envIdSlaveB2 = sys_create_env("ef_tshr5slaveB2", (myEnv->page_WS_max_size), (myEnv->SecondListSize),50);
 
 		z = smalloc("z", PAGE_SIZE+1, 1);
 		cprintf("Master env created z (2 pages) \n");
@@ -94,11 +82,9 @@ _main(void)
 
 		//give slaves time to catch the shared object before removal
 		{
-//			env_sleep(4000);
+			//			env_sleep(4000);
 			while (gettst()!=2) ;
 		}
-
-//		rsttst();
 
 		int freeFrames = sys_calculate_free_frames() ;
 
@@ -108,13 +94,52 @@ _main(void)
 		sfree(x);
 		cprintf("Master env removed x\n");
 
+		inctst(); //finish the free's
+
 		int diff = (sys_calculate_free_frames() - freeFrames);
 		expected = 1 /*table*/;
 		if (diff !=  expected) panic("Wrong free: frames removed not equal 1 !, correct frames to be removed are 1:\nfrom the env: 1 table\nframes_storage of z & x: should NOT cleared yet (still in use!)\n");
 
-		//To indicate that it's completed successfully
+		inctst();	// finish checking
+
+		//to ensure that the other environments completed successfully
+		while (gettst()!=6) ;// panic("test failed");
+
+		int* finish_children = smalloc("finish_children", sizeof(int), 1);
+		*finish_children = 0;
+
+		//To indicate that it create the finish_children & completed successfully
 		cprintf("Master is completed.\n");
 		inctst();
+
+		if (sys_getparentenvid() > 0) {
+			while(*finish_children != 1);
+			cprintf("done\n");
+
+			//DISABLE the interrupt to ensure the env_free is done as a whole without preemption
+			//to avoid context switch (due to clock interrupt) while freeing the env to prevent:
+			//	1. context switching to a wrong process specially in the part of temporarily switching the CPU process for freeing shared variables
+			//	2. changing the # free frames
+			char changeIntCmd[100] = "__changeInterruptStatus__";
+			sys_utilities(changeIntCmd, 0);
+			{
+				sys_destroy_env(envIdSlave1);
+				sys_destroy_env(envIdSlave2);
+				sys_destroy_env(envIdSlaveB1);
+				sys_destroy_env(envIdSlaveB2);
+			}
+			sys_utilities(changeIntCmd, 1);
+
+			int *finishedCount = NULL;
+			finishedCount = sget(sys_getparentenvid(), "finishedCount") ;
+
+			//Critical section to protect the shared variable
+			sys_lock_cons();
+			{
+				(*finishedCount)++ ;
+			}
+			sys_unlock_cons();
+		}
 	}
 
 

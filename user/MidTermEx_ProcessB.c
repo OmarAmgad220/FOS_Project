@@ -1,44 +1,68 @@
 #include <inc/lib.h>
+extern volatile bool printStats;
 
 void _main(void)
 {
+	printStats = 0;
+
 	int32 parentenvID = sys_getparentenvid();
 	int delay;
 
 	/*[1] GET SHARED VARIABLE, SEMAPHORE SEL, check-finishing counter*/
 	int *X = sget(parentenvID, "X") ;
 	int *useSem = sget(parentenvID, "useSem") ;
-	int *finishedCount = sget(parentenvID, "finishedCount") ;
-
-	/*[2] DO THE JOB*/
-	int Z ;
-	struct semaphore T ;
+	int * finishedCount = sget(parentenvID, "finishedCount") ;
+	struct semaphore T, finished, finishedCountMutex ;
 	if (*useSem == 1)
 	{
 		T = get_semaphore(parentenvID, "T");
+		finished = get_semaphore(parentenvID, "finished");
+		finishedCountMutex = get_semaphore(parentenvID, "finishedCountMutex");
+	}
+
+	/*[2] DO THE JOB*/
+	int Z ;
+	if (*useSem == 1)
+	{
 		wait_semaphore(T);
 	}
 
 	//random delay
 	delay = RAND(2000, 10000);
 	env_sleep(delay);
-//	cprintf("delay = %d\n", delay);
+	//	cprintf("delay = %d\n", delay);
 
 	Z = (*X) + 1 ;
 
 	//random delay
 	delay = RAND(2000, 10000);
 	env_sleep(delay);
-//	cprintf("delay = %d\n", delay);
+	//	cprintf("delay = %d\n", delay);
 
 	(*X) = Z ;
 
 	//random delay
 	delay = RAND(2000, 10000);
 	env_sleep(delay);
-//	cprintf("delay = %d\n", delay);
+	//	cprintf("delay = %d\n", delay);
 
 	/*[3] DECLARE FINISHING*/
-	(*finishedCount)++ ;
+	if (*useSem == 1)
+	{
+		signal_semaphore(finished);
 
+		wait_semaphore(finishedCountMutex);
+		{
+			(*finishedCount)++ ;
+		}
+		signal_semaphore(finishedCountMutex);
+	}
+	else
+	{
+		sys_lock_cons();
+		{
+			(*finishedCount)++ ;
+		}
+		sys_unlock_cons();
+	}
 }

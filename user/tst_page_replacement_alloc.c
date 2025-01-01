@@ -65,7 +65,7 @@ void _main(void)
 	}
 
 	//cprintf("Congratulations!! test PAGE replacement [ALLOCATION] is completed successfully\n");
-	atomic_cprintf("%~\nCongratulations!!... test is completed.\n");
+	atomic_cprintf("%~\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 
 	return;
 }

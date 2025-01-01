@@ -308,7 +308,7 @@ void test_priorityRR_0()
 		firstTimeTest = 0;
 	}
 	//cprintf("\nCongratulations!! test_priorityRR_0 completed successfully.\n");
-	cprintf("\nCongratulations!!... test is completed.\n");
+	cprintf("\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 
 }
 
@@ -366,7 +366,7 @@ void test_priorityRR_1()
 		release_spinlock(&ProcessQueues.qlock);
 	}
 	//cprintf("\nCongratulations!! test_priorityRR_1 completed successfully.\n");
-	cprintf("\nCongratulations!!... test is completed.\n");
+	cprintf("\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 
 }
 
@@ -455,6 +455,6 @@ void test_priorityRR_2()
 		firstTimeTest = 0;
 	}
 	//cprintf("\nCongratulations!! test_priorityRR_2 completed successfully.\n");
-	cprintf("\nCongratulations!!... test is completed.\n");
+	cprintf("\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 
 }

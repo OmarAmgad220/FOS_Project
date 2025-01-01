@@ -67,7 +67,7 @@ void _main(void)
 		if (arrOpsCheck)
 		{
 			//cprintf("Congratulations... ARRAY OPERATIONS scenario finished\n");
-			atomic_cprintf("%~\nCongratulations!!... test is completed.\n");
+			atomic_cprintf("%~\n[#MS3EVAL#]Congratulations!!... test is completed.\n");
 		}
 		else
 		{

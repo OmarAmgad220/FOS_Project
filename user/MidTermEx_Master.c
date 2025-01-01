@@ -9,10 +9,15 @@ _main(void)
 	*X = 5 ;
 
 	/*[2] SPECIFY WHETHER TO USE SEMAPHORE OR NOT*/
-	cprintf("Do you want to use semaphore (y/n)? ") ;
-	char select = getchar() ;
-	cputchar(select);
-	cputchar('\n');
+	char select;
+	sys_lock_cons();
+	{
+		cprintf("Do you want to use semaphore (y/n)? ") ;
+		select = getchar() ;
+		cputchar(select);
+		cputchar('\n');
+	}
+	sys_unlock_cons();
 
 	/*[3] SHARE THIS SELECTION WITH OTHER PROCESSES*/
 	int *useSem = smalloc("useSem", sizeof(int) , 0) ;
@@ -20,17 +25,19 @@ _main(void)
 	if (select == 'Y' || select == 'y')
 		*useSem = 1 ;
 
-	struct semaphore T ;
+	struct semaphore T, finished, finishedCountMutex;
+	int *numOfFinished ;
 	if (*useSem == 1)
 	{
 		T = create_semaphore("T", 0);
+		finished = create_semaphore("finished", 0);
+		finishedCountMutex = create_semaphore("finishedCountMutex", 1);
 	}
+	//Create the check-finishing counter
+	numOfFinished = smalloc("finishedCount", sizeof(int), 1) ;
+	*numOfFinished = 0 ;
 
 	/*[4] CREATE AND RUN ProcessA & ProcessB*/
-
-	//Create the check-finishing counter
-	int *numOfFinished = smalloc("finishedCount", sizeof(int), 1) ;
-	*numOfFinished = 0 ;
 
 	//Create the 2 processes
 	int32 envIdProcessA = sys_create_env("midterm_a", (myEnv->page_WS_max_size),(myEnv->SecondListSize), (myEnv->percentage_of_WS_pages_to_be_removed));
@@ -40,11 +47,19 @@ _main(void)
 	sys_run_env(envIdProcessA);
 	sys_run_env(envIdProcessB);
 
-	/*[5] BUSY-WAIT TILL FINISHING BOTH PROCESSES*/
-	while (*numOfFinished != 2) ;
+	/*[5] WAIT TILL FINISHING BOTH PROCESSES*/
+	if (*useSem == 1)
+	{
+		wait_semaphore(finished);
+		wait_semaphore(finished);
+	}
+	else
+	{
+		while (*numOfFinished != 2) ;
+	}
 
 	/*[6] PRINT X*/
-	cprintf("Final value of X = %d\n", *X);
+	atomic_cprintf("Final value of X = %d\n", *X);
 
 	return;
 }
